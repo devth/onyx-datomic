@@ -2,6 +2,7 @@
   (:require [aero.core :refer [read-config]]
             [clojure.test :refer [deftest is testing]]
             [datomic.api :as d]
+            [onyx.compression.nippy :refer [messaging-compress]]
             [onyx api
              [job :refer [add-task]]
              [test-helper :refer [with-test-env]]]
@@ -83,6 +84,14 @@
     :user/name "Dorrene4"}
    {:db/id (d/tempid :com.mdrogalis/people)
     :user/name "Benti4"}])
+
+(deftest ^:ci datomic-serialization-test
+  (testing "That we can read the initial transaction log"
+    (messaging-compress
+      (d/function
+        '{:lang :clojure
+          :params [db]
+          :code (and 1)}))))
 
 (deftest ^:ci datomic-input-log-test
   (let [{:keys [env-config peer-config datomic-config]}
